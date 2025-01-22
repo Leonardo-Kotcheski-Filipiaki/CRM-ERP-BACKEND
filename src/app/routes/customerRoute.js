@@ -1,0 +1,36 @@
+require('dotenv').config();
+const router = require('express').Router();
+const customerController = require('../controllers/customerController');
+
+
+router.post('/create', async (req, res) => {
+    let result = await customerController.createCustomer(req.body)
+    if(result.length > 0){
+        res.status(403).send(result);
+    }else if(result == 201){
+        res.status(201).send('Customer creation went successfull');
+    }else{
+        res.status(500).send('System error, try again or contact your supervisor');
+    }
+})
+
+router.get('/find', async(req, res) => {
+    let result = await customerController.findCustomer(req.body)
+    
+    if(!result.data){
+        res.status(500).send('System error, try again or contact your supervisor');
+    }else{
+        res.status(result.httpRes).send(result.data);
+    }
+})
+
+router.get('/findAll', async(req, res) => {
+    let result = await customerController.findAllCustomers()
+    
+    if(!result.data){
+        res.status(500).send('System error, try again or contact your supervisor');
+    }else{
+        res.status(result.httpRes).send(result.data);
+    }
+})
+module.exports = router;
