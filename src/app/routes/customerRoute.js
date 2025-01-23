@@ -4,7 +4,7 @@ const customerController = require('../controllers/customerController');
 
 
 router.post('/create', async (req, res) => {
-    let result = await customerController.createCustomer(req.body)
+    let result = await customerController.createCustomer(req.body);
     if(result.length > 0){
         res.status(403).send(result);
     }else if(result == 201){
@@ -15,7 +15,7 @@ router.post('/create', async (req, res) => {
 })
 
 router.get('/find', async(req, res) => {
-    let result = await customerController.findCustomer(req.body)
+    let result = await customerController.findCustomer(req.body);
     
     if(!result.data){
         res.status(500).send('System error, try again or contact your supervisor');
@@ -25,12 +25,24 @@ router.get('/find', async(req, res) => {
 })
 
 router.get('/findAll', async(req, res) => {
-    let result = await customerController.findAllCustomers()
+    let result = await customerController.findAllCustomers();
     
     if(!result.data){
         res.status(500).send('System error, try again or contact your supervisor');
     }else{
         res.status(result.httpRes).send(result.data);
     }
+})
+
+router.patch('/update/:id', async (req, res) => {
+    const id = req.params.id;
+
+    let result = await customerController.updateCustomer(id, req.body);
+    if(result.httpRes){
+        res.status(result.httpRes).send(result.data);
+    }else{
+        res.status(500).send('Server error');
+    }
+
 })
 module.exports = router;

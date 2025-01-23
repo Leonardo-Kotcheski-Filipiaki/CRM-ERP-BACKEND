@@ -17,8 +17,14 @@ const customerSchema = new mongoose.Schema({
 const CustomerModel = mongoose.model("Customer", customerSchema);
 
 class Customer{
-    constructor(body){
-        this.body = body;
+    constructor(id = 0, body){
+        if(id != 0){
+            this.id = id;
+        }
+        
+        if(body){
+            this.body = body;
+        }
         this.errors = [];
         this.resultFromDataInsert = null;
         this.data = [];
@@ -160,6 +166,35 @@ class Customer{
             })
         }
         
+    }
+
+    async updateCustomer(){
+        if(!this.id){
+            this.errors.append({
+                httpRes: 409,
+                data: "Id is not valid or is empty"
+            })
+            return this.errors;
+        }
+        if(Object.keys(this.body).length > 0){
+            let cryptedData = cripting.Encrypting(this.body);
+            let result = 0;
+            for(let i in this.body){
+                result += (await CustomerModel.updateOne({'_id': this.id}, {[i]: cryptedData[i]})).modifiedCount   
+            }
+            if(result > 0){
+                return {
+                    httpRes: 200,
+                    data: `Update successful in ${result} pieces of information from data!` 
+                }
+            }else{ 
+                return {
+                    httpRes: 204,
+                    data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
+                }
+            }
+        }
+
     }
 }
 

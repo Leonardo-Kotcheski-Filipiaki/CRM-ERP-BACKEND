@@ -20,7 +20,10 @@ async function Decrypting(data){
                 const decipher = crypto.createDecipheriv(process.env.ALG, Buffer.from(process.env.CRYPT_KEY_PRIVATE), Buffer.from(process.env.IV));
                 if(!(key == '_id') && !(key == '__v')){
                     decryptedData[key] = decipher.update(data[key], 'hex', 'utf8') + decipher.final('utf8');
+                } else if(key == "_id"){
+                    decryptedData[key] = data[key];
                 }
+                
             }
             resolve(decryptedData);
         }
