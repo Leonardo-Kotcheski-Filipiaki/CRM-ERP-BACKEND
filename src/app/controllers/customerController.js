@@ -21,6 +21,7 @@ async function findAllCustomers(){
 async function updateCustomer(id, body){
     const customer = new Customer(id, body);
     let response = await customer.updateCustomer();
+    console.log(response)
     return response;
 }
 

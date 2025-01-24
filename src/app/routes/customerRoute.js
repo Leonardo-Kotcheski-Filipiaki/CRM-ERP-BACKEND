@@ -3,6 +3,7 @@ const router = require('express').Router();
 const customerController = require('../controllers/customerController');
 
 
+
 router.post('/create', async (req, res) => {
     let result = await customerController.createCustomer(req.body);
     if(result.length > 0){
@@ -36,8 +37,12 @@ router.get('/findAll', async(req, res) => {
 
 router.patch('/update/:id', async (req, res) => {
     const id = req.params.id;
-
+    
     let result = await customerController.updateCustomer(id, req.body);
+    
+    if(Array.isArray(result)){
+        res.status(result[0].httpRes).send(result[0].data);
+    }
     if(result.httpRes){
         res.status(result.httpRes).send(result.data);
     }else{

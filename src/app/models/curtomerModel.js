@@ -177,22 +177,45 @@ class Customer{
             return this.errors;
         }
         if(Object.keys(this.body).length > 0){
-            let cryptedData = cripting.Encrypting(this.body);
-            let result = 0;
-            for(let i in this.body){
-                result += (await CustomerModel.updateOne({'_id': this.id}, {[i]: cryptedData[i]})).modifiedCount   
-            }
-            if(result > 0){
-                return {
-                    httpRes: 200,
-                    data: `Update successful in ${result} pieces of information from data!` 
+            console.log(this.body.cpf)
+            let cpfValidation = this.body.cpf ? await validador.validarCPF((this.body.cpf.trim().replaceAll('.','').replaceAll('-',''))).then(res => { 
+                    return res;
+                })
+                .catch(res => {
+                    return res;
+                }) : null;
+            let cnpjValidation = this.body.cpf ? await validador.validarCNPJ((this.body.cnpj.trim().replaceAll('.','').replaceAll('-','').replaceAll('/',''))).then(res => { 
+                    return res;
+                })
+                .catch(res => {
+                    return res;
+                }) : null;
+            
+            if((cpfValidation == true || cpfValidation == null) & (cnpjValidation == true || cnpjValidation == null)){
+                let cryptedData = cripting.Encrypting(this.body);
+                let result = 0;
+                for(let i in this.body){
+                    result += (await CustomerModel.updateOne({'_id': this.id}, {[i]: cryptedData[i]})).modifiedCount   
                 }
-            }else{ 
-                return {
-                    httpRes: 204,
-                    data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
+                if(result > 0){
+                    return {
+                        httpRes: 200,
+                        data: `Update successful in ${result} pieces of information from data!` 
+                    }
+                }else{ 
+                    return {
+                        httpRes: 204,
+                        data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
+                    }
                 }
+            } else {
+                this.errors.push({
+                    httpRes: 409,
+                    data: "CPF/CNPJ is not valid"
+                })
+                return this.errors;
             }
+            
         }
 
     }
