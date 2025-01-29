@@ -6,7 +6,7 @@ const customerController = require('../controllers/customerController');
 
 router.post('/create', async (req, res) => {
     let result = await customerController.createCustomer(req.body);
-    if(result.length > 0){
+    if(Array.isArray(result)){
         res.status(403).send(result);
     }else if(result == 201){
         res.status(201).send('Customer creation went successfull');
@@ -46,8 +46,22 @@ router.patch('/update/:id', async (req, res) => {
     if(result.httpRes){
         res.status(result.httpRes).send(result.data);
     }else{
-        res.status(500).send('Server error');
+        res.status(500).send(result.data);
     }
 
+})
+
+router.delete('/delete/:id', async (req, res) => {
+    const id = req.params.id;
+
+    let result = await customerController.deleteCustomer(id);
+    if(Array.isArray(result)){
+        res.status(result[0].httpRes).send(result[0].data);
+    }
+    if(result.httpRes){
+        res.status(result.httpRes).send(result.data);
+    }else{
+        res.status(500).send('Server error');
+    }
 })
 module.exports = router;

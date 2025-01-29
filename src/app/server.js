@@ -11,7 +11,7 @@ app.use("/user", userRoute);
 app.use('/customer', customerRoute)
 mongoose.connect(process.env.DATABASE_URL)
 .then(() =>{
-    app.emit('ready');
+    app.emit('ready'); 
 })
 .catch((e) => {
     console.error(e);

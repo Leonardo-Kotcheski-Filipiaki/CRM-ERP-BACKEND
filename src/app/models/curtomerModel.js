@@ -18,12 +18,14 @@ const CustomerModel = mongoose.model("Customer", customerSchema);
 
 class Customer{
     constructor(id = 0, body){
-        if(id != 0){
+        if(id != 0 && id != null){
             this.id = id;
         }
         
         if(body){
-            this.body = body;
+            if(typeof body == 'object'){
+                this.body = body;
+            }
         }
         this.errors = [];
         this.resultFromDataInsert = null;
@@ -32,7 +34,7 @@ class Customer{
 
     async createCustomer() {
         await this.valida();
-        if(this.errors.length > 0)return this.errors;
+        if(this.errors.length > 0)return this.errors;            
         try {
             this.body = cripting.Encrypting(this.body);
             return await CustomerModel.create(this.body).then(res => {
@@ -43,9 +45,29 @@ class Customer{
                 }
             });
         } catch (error) {
-            console.error(error);
+            if(error.code == 11000){
+                if(Object.keys(error.errorResponse.keyPattern).includes('cpf')){
+                    this.errors.push({
+                        error: 'CPF',
+                        msg:'An customer with the same CPF already exists',
+                    })
+                    
+                }
+                if(Object.keys(error.errorResponse.keyPattern).includes('cnpj')){
+                    this.errors.push({
+                        error: 'CNPJ',
+                        msg:'An customer with the same CNPJ already exists',
+                    })
+                }
+            } else {
+                this.errors.push({
+                    error: 'Unkown',
+                    msg: error,
+                })
+            }
+            return this.errors
+            
         }
-        return 201;
     }
 
     async findCustomer(){
@@ -176,48 +198,97 @@ class Customer{
             })
             return this.errors;
         }
-        if(Object.keys(this.body).length > 0){
-            console.log(this.body.cpf)
-            let cpfValidation = this.body.cpf ? await validador.validarCPF((this.body.cpf.trim().replaceAll('.','').replaceAll('-',''))).then(res => { 
-                    return res;
-                })
-                .catch(res => {
-                    return res;
-                }) : null;
-            let cnpjValidation = this.body.cpf ? await validador.validarCNPJ((this.body.cnpj.trim().replaceAll('.','').replaceAll('-','').replaceAll('/',''))).then(res => { 
-                    return res;
-                })
-                .catch(res => {
-                    return res;
-                }) : null;
-            
-            if((cpfValidation == true || cpfValidation == null) & (cnpjValidation == true || cnpjValidation == null)){
-                let cryptedData = cripting.Encrypting(this.body);
-                let result = 0;
-                for(let i in this.body){
-                    result += (await CustomerModel.updateOne({'_id': this.id}, {[i]: cryptedData[i]})).modifiedCount   
+        try {
+            if(Object.keys(this.body).length > 0){
+                let cpfValidation = this.body.cpf ? await validador.validarCPF((this.body.cpf.trim().replaceAll('.','').replaceAll('-',''))).then(res => { 
+                        return res;
+                    })
+                    .catch(res => {
+                        return res;
+                    }) : null;
+                let cnpjValidation = this.body.cnpj ? await validador.validarCNPJ((this.body.cnpj.trim().replaceAll('.','').replaceAll('-','').replaceAll('/',''))).then(res => { 
+                        return res;
+                    })
+                    .catch(res => {
+                        return res;
+                    }) : null;
+                
+                if((cpfValidation == true || cpfValidation == null) & (cnpjValidation == true || cnpjValidation == null)){
+                    let cryptedData = cripting.Encrypting(this.body);
+                    let result = 0;
+                    for(let i in this.body){
+                        result += (await CustomerModel.updateOne({'_id': this.id}, {[i]: cryptedData[i]})).modifiedCount   
+                    }
+                    if(result > 0){
+                        return {
+                            httpRes: 200,
+                            data: `Update successful in ${result} pieces of information from data!` 
+                        }
+                    }else{ 
+                        return {
+                            httpRes: 204,
+                            data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
+                        }
+                    }
+                } else {
+                    this.errors.push({
+                        httpRes: 409,
+                        data: "CPF/CNPJ is not valid"
+                    })
+                    return this.errors;
                 }
-                if(result > 0){
-                    return {
-                        httpRes: 200,
-                        data: `Update successful in ${result} pieces of information from data!` 
-                    }
-                }else{ 
-                    return {
-                        httpRes: 204,
-                        data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
-                    }
+                
+            }
+        } catch (error) {
+            if(error.code == 11000){
+                if(Object.keys(error.errorResponse.keyPattern).includes('cpf')){
+                    this.errors.push({
+                        httpRes: 403,
+                        data:'An customer with the same CPF already exists',
+                    })
+                    
+                }
+                if(Object.keys(error.errorResponse.keyPattern).includes('cnpj')){
+                    this.errors.push({
+                        httpRes: 403,
+                        data:'An customer with the same CNPJ already exists',
+                    })
                 }
             } else {
                 this.errors.push({
-                    httpRes: 409,
-                    data: "CPF/CNPJ is not valid"
+                    httpRes: 403,
+                    data: error,
                 })
-                return this.errors;
             }
+            return this.errors
             
         }
+    }
 
+    async deleteCustomer(){
+        if(!this.id){
+            this.errors.append({
+                httpRes: 409,
+                data: "Id is not valid or is empty"
+            })
+            return this.errors;
+        }
+        try {
+            const total = (await CustomerModel.deleteOne({'_id': this.id})).deletedCount
+            if(total > 0){
+                return {
+                    httpRes: 200,
+                    data: "User deleted successfully"
+                }
+            } else {
+                return {
+                    httpRes: 403,
+                    data: "User was not found or was not deleted"
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 
