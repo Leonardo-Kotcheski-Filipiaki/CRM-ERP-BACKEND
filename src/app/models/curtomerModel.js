@@ -49,19 +49,19 @@ class Customer{
                 if(Object.keys(error.errorResponse.keyPattern).includes('cpf')){
                     this.errors.push({
                         error: 'CPF',
-                        msg:'An customer with the same CPF already exists',
+                        msg:'Um cliente com este CPF já existe!',
                     })
                     
                 }
                 if(Object.keys(error.errorResponse.keyPattern).includes('cnpj')){
                     this.errors.push({
                         error: 'CNPJ',
-                        msg:'An customer with the same CNPJ already exists',
+                        msg:'Um cliente com este CNPJ já existe!',
                     })
                 }
             } else {
                 this.errors.push({
-                    error: 'Unkown',
+                    error: 'Desconhecido',
                     msg: error,
                 })
             }
@@ -168,7 +168,7 @@ class Customer{
         if(!validator.isEmail(this.body.email)){
             this.errors.push({
                 error: 'E-mail',
-                msg:'Something is wrong with the e-mail, check and try again please!',
+                msg:'O e-mail está incorreto ou é invalido, verifique e tente novamente!',
             });
         }
         let resultValidation = {
@@ -178,13 +178,13 @@ class Customer{
         if(!(resultValidation.cpfResult)){
             this.errors.push({
                 error: 'CPF',
-                msg:'Something is wrong with the CPF information, check and try again please!',
+                msg:'O CPF inserido está inválido ou incorreto, confira e tente novamente!',
             })
         }
         if(!(resultValidation.cnpjResult)){
             this.errors.push({
                 error: 'CNPJ',
-                msg:'Something is wrong with the CNPJ information, check and try again please!',
+                msg:'O CNPJ inserido está invalido ou incorreto, confira e tente novamente!',
             })
         }
         
@@ -194,7 +194,7 @@ class Customer{
         if(!this.id){
             this.errors.append({
                 httpRes: 409,
-                data: "Id is not valid or is empty"
+                data: "Id inválido ou vázio."
             })
             return this.errors;
         }
@@ -222,18 +222,18 @@ class Customer{
                     if(result > 0){
                         return {
                             httpRes: 200,
-                            data: `Update successful in ${result} pieces of information from data!` 
+                            data: `${result} informações atualizada com sucesso` 
                         }
                     }else{ 
                         return {
                             httpRes: 204,
-                            data: "Update was not successful, the cause may be because the data in database is equal to whats has been sended"
+                            data: "As informações não foram atualizadas, possivelmente por que os dados inserido são iguais aos cadastrados"
                         }
                     }
                 } else {
                     this.errors.push({
                         httpRes: 409,
-                        data: "CPF/CNPJ is not valid"
+                        data: "CPF/CNPJ inserido não é valido ou está incorreto"
                     })
                     return this.errors;
                 }
@@ -244,14 +244,14 @@ class Customer{
                 if(Object.keys(error.errorResponse.keyPattern).includes('cpf')){
                     this.errors.push({
                         httpRes: 403,
-                        data:'An customer with the same CPF already exists',
+                        data:'Um cliente com o mesmo CPF já existe',
                     })
                     
                 }
                 if(Object.keys(error.errorResponse.keyPattern).includes('cnpj')){
                     this.errors.push({
                         httpRes: 403,
-                        data:'An customer with the same CNPJ already exists',
+                        data:'Um cliente com o mesmo CNPJ já existe',
                     })
                 }
             } else {
@@ -269,7 +269,7 @@ class Customer{
         if(!this.id){
             this.errors.append({
                 httpRes: 409,
-                data: "Id is not valid or is empty"
+                data: "Id inválido ou vázio."
             })
             return this.errors;
         }
@@ -278,12 +278,12 @@ class Customer{
             if(total > 0){
                 return {
                     httpRes: 200,
-                    data: "User deleted successfully"
+                    data: "Cliente excluído com sucesso"
                 }
             } else {
                 return {
                     httpRes: 403,
-                    data: "User was not found or was not deleted"
+                    data: "Cliente não foi encontrado"
                 }
             }
         } catch (e) {
