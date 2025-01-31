@@ -5,9 +5,17 @@ function Encrypting(data){
     if(typeof data === 'object'){
         const encryptedData = {};
         for(let key in data){
-            const cipher = crypto.createCipheriv(process.env.ALG, Buffer.from(process.env.CRYPT_KEY_PRIVATE), Buffer.from(process.env.IV));
-            encryptedData[key] = cipher.update(data[key], 'utf8', 'hex') + cipher.final('hex');
+            if(key == 'altId'){
+                encryptedData[key] = data[key];
+            }else{
+                const cipher = crypto.createCipheriv(process.env.ALG, Buffer.from(process.env.CRYPT_KEY_PRIVATE), Buffer.from(process.env.IV));
+                if((typeof data[key]) == 'number'){
+                    data[key] = data[key].toString();
+                }
+                encryptedData[key] = cipher.update(data[key], 'utf8', 'hex') + cipher.final('hex');
+            }
         }
+
         return encryptedData;
     }
 }
@@ -18,9 +26,9 @@ async function Decrypting(data){
             const decryptedData = {};
             for(let key in data['_doc']){
                 const decipher = crypto.createDecipheriv(process.env.ALG, Buffer.from(process.env.CRYPT_KEY_PRIVATE), Buffer.from(process.env.IV));
-                if(!(key == '_id') && !(key == '__v')){
+                if(!(key == '_id') && !(key == '__v') && !(key == 'altId')){
                     decryptedData[key] = decipher.update(data[key], 'hex', 'utf8') + decipher.final('utf8');
-                } else if(key == "_id"){
+                } else if(key == '_id' || key == 'altId'){
                     decryptedData[key] = data[key];
                 }
                 

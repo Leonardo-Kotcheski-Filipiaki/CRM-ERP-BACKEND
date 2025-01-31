@@ -44,13 +44,13 @@ class User{
         if(!validator.isEmail(this.body.email)){
             this.errors.push({
                 error: 'E-mail',
-                msg:'Something went wrong in the system, contact your supervisor',
+                msg:'E-mail invalido, verifique novamente',
             });
         }
         if(this.body.password.length < 6){
             this.errors.push({
                 error: 'Password',
-                msg:'Password is less then 6 characters',
+                msg:'A senha tem menos caracteres que o necessário (6 caracteres mínimos)',
             });
         }
 
