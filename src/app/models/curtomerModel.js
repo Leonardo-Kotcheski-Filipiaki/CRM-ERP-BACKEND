@@ -17,7 +17,7 @@ const customerSchema = new mongoose.Schema({
 const CustomerModel = mongoose.model("Customer", customerSchema);
 
 class Customer{
-    constructor(id = 0, body){
+    constructor(id = 0, body = null){
         if(id != 0 && id != null){
             this.id = id;
         }
@@ -28,7 +28,6 @@ class Customer{
             }
         }
         this.errors = [];
-        this.resultFromDataInsert = null;
         this.data = [];
     }
 
