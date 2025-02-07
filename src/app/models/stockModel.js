@@ -47,7 +47,6 @@ class Stock{
 
     async findItem(){
         try {
-            console.log(this.id)
             if(this.id != null && this.id != 0){
                 return await StockModel.findOne({'altId': this.id}).then(async res => {
                     return new Promise(async (resolve, reject) => {
