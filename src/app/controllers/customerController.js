@@ -1,4 +1,4 @@
-const Customer = require('../models/curtomerModel');
+const Customer = require('../models/customerModel');
 
 async function createCustomer(body) {
     const customer = new Customer(0, body);
