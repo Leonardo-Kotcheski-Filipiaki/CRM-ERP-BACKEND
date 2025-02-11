@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 const cripting = require('../helpers/crypting');
-
+const dateH = require('../helpers/dateHelpers');
 const OSSchema = new mongoose.Schema({
     OS: {type: String, required: true, unique: true},
-    cpf: {type: String, required: true},
-    cnpj: {type: String},
+    customer: {type: String, required: true},
     toDo: {type: String, required: true},
     description: {type: String, required: true},
-    status: {type: String, required: true}
+    status: {type: String, required: true},
+    created_by: {type: String, required: true},
+    create_date: {type: String, required: true},
+    alter_date: {type: String},
+    finish_date: {type: String},
+    last_changed_by: {type: String},
 })
 
 const OSModel = mongoose.model("OS", OSSchema);
@@ -54,19 +58,16 @@ class OS{
     async valida() {
         await this.OSNumberCreate().then(res => {
             this.body.OS = res;
+            this.body.create_date = dateH.getDayAndTime();
+            this.body.alter_date = dateH.getDayAndTime();
         });
-        console.log(this.body)
-        await this.findExists().then(res => {
-            if (res == 'emptyCNPJ'){
-                delete this.body.cnpj;
-            }
-        }).catch(error => {
-            this.errors.push({
-                error: 'Desconhecido',
-                msg: error,
-            });
-        })
         
+        if(!(await this.findExists())){
+            this.errors.push({
+                error: 'Cliente',
+                msg: "Cliente não encontrado na base de dados.",
+            })
+        }        
     }
     
     async OSNumberCreate(){
@@ -92,31 +93,18 @@ class OS{
     }
     
     async findExists(){
-        const conn = await mongoose.connection.db.collection('customers').find().toArray()
-        
-        return new Promise((resolve, reject) => {
-            try {
-                conn.forEach(async item => {
-                    const cpfDecrypted = await cripting.Decrypting(item.cpf);
-                    if(cpfDecrypted == this.body.cpf){
-                        if(this.body.cnpj != undefined && this.body.cnpj != null){
-                            if(!(validator.isEmpty(this.body.cnpj))){
-                                const cnpjDecrypted = await cripting.Decrypting(item.cnpj);
-                                if(cnpjDecrypted == this.body.cnpj){
-                                    resolve();
-                                }
-                            } else {
-                                resolve('emptyCNPJ');
-                            }
-                        } else {
-                            resolve();
-                        }
-                    }
-                })
-                } catch (error) {
-                    reject(error);
-                }
+        const res = await mongoose.connection.db.collection('customers').find().toArray()
+        let find = false;
+        res.forEach((item) => {
+            if(item._id == this.body.customer && find == false){
+                find = true;
+            }
         })
+        if(find){
+            return 1;
+        }
+        return 0
+
         
     }
 
