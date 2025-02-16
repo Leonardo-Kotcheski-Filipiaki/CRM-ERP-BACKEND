@@ -41,21 +41,24 @@ router.get('/findAll', async(req, res) => {
     }
 })
 
-// router.patch('/update/:id', async (req, res) => {
-//     const id = req.params.id;
+router.patch('/alter/:OS/:status', async (req, res) => {
+    if(!req.params.OS || !req.params.status){
+        res.status(401).send('Os dados necessários para alteração (Número da OS e status), não chegaram ao destino');
+    }   
+    let result = await OSController.updateServiceOrders(req.params, req.body);
     
-//     let result = await OSController.updateCustomer(id, req.body);
-    
-//     if(Array.isArray(result)){
-//         res.status(result[0].httpRes).send(result[0].data);
-//     }
-//     if(result.httpRes){
-//         res.status(result.httpRes).send(result.data);
-//     }else{
-//         res.status(500).send(result.data);
-//     }
+    if(Array.isArray(result)){
+        if(Object.keys(result[0]).includes('error')){
+            res.status(401).send(result);
+        }
+    }
+    if((typeof result) == 'object'){
+        if(Object.keys(result).includes('data')){
+            res.status(result.httpRes).send(result.data);
+        }
+    }
 
-// })
+})
 
 // router.delete('/delete/:id', async (req, res) => {
 //     const id = req.params.id;

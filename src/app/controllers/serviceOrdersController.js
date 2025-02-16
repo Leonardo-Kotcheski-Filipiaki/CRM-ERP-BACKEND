@@ -18,17 +18,18 @@ async function findAllServiceOrders(){
     return response;
 }
 
-// async function updateCustomer(id, body){
-//     if(!body){
-//         return [{
-//           httpRes: 403,
-//           data: "Body was not found and is needed"  
-//         }]
-//     }
-//     const customer = new Customer(id, body);
-//     let response = await customer.updateCustomer();
-//     return response;
-// }
+async function updateServiceOrders(params, body){
+    if(!params || !body){
+        return {
+          httpRes: 403,
+          data: "Não foram encontrados dados para a atualização."  
+        }
+    }
+    const serviceOrders = new OS(params, body);
+    let response = await serviceOrders.updateServiceOrders();
+    console.log(response)
+    return response;
+}
 
 // async function deleteCustomer(id){
 //     const customer = new Customer(id);
@@ -40,5 +41,5 @@ async function findAllServiceOrders(){
 module.exports.createOS = createOS;
 module.exports.findServiceOrder = findServiceOrder;
 module.exports.findAllServiceOrders = findAllServiceOrders;
-// module.exports.updateCustomer = updateCustomer;
+module.exports.updateServiceOrders = updateServiceOrders;
 // module.exports.deleteCustomer = deleteCustomer;
