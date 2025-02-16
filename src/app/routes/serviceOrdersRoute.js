@@ -12,15 +12,25 @@ router.post('/create', async (req, res) => {
     }
 })
 
-// router.get('/find', async(req, res) => {
-//     let result = await OSController.findOS(req.body);
+router.get('/find/:os', async(req, res) => {
+    if(req.params.os.length == 8){
+        let result = await OSController.findServiceOrder(req.params.os);
+        if(Array.isArray(result)){
+            if(Object.keys(result[0]).includes('error')){
+                res.status(401).send(result);
+            }
+        }
+        if((typeof result) == 'object'){
+            if(Object.keys(result).includes('data')){
+                res.status(result.httpRes).send(result.data);
+            }
+        }
+    }else{
+        res.status(401).send('Número de OS com menos/mais caractéres que o necessário');
+    }
+
     
-//     if(!result.data){
-//         res.status(500).send('System error, try again or contact your supervisor');
-//     }else{
-//         res.status(result.httpRes).send(result.data);
-//     }
-// })
+})
 
 router.get('/findAll', async(req, res) => {
     let result = await OSController.findAllServiceOrders();
