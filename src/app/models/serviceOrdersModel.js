@@ -19,12 +19,21 @@ const OSModel = mongoose.model("OS", OSSchema);
 
 
 class OS{
-    constructor(param){
+    constructor(param, body = 0){
         if(param){
             if((typeof param) == 'object'){
-                this.body = param;
+                if(Object.keys(param).includes('status')){
+                    this.OS = param
+                }else{
+                    this.body = param;
+                }
             }else if((typeof param) == 'string'){
                 this.OS = param;
+            }
+        }
+        if(body != 0){
+            if((typeof body) == 'object'){
+                this.body = body;
             }
         }
         this.errors;
@@ -85,6 +94,76 @@ class OS{
             }
         }
     }
+    
+    async findAllServiceOrders(){
+            try{
+                return await OSModel.find().then(async res => {
+                    return new Promise((resolve, reject) => {
+                        res.forEach(async item => {
+                            this.data.push((await cripting.Decrypting(item)));
+                        })
+                        resolve({
+                            httpRes: 302,
+                            data: this.data 
+                        });         
+                    })
+                    
+                })
+            }catch(e){
+                console.error(e);
+            }
+    }
+
+    async updateServiceOrders(){
+        try {
+            return await OSModel.find().then(async res => {
+                return await new Promise(async (resolve, reject) => {
+                    res.forEach(async item => {
+                        const osDecrypted = await cripting.Decrypting(item.OS);
+                        const statusDecrypted = await cripting.Decrypting(item.status);
+                        if(osDecrypted == this.OS.OS){
+                            if(statusDecrypted == 'Cancelada' || statusDecrypted == 'Finalizada'){
+                                resolve({
+                                    httpRes: 401,
+                                    data: 'Não é permitido alterar uma ordem de serviço finalizada ou cancelada'  
+                                })
+                            }
+                            if(statusDecrypted == this.OS.status){
+                                resolve({
+                                    httpRes: 403,
+                                    data: 'Não foram realizadas alterações na OS pois já está com o estado pretendido.'
+                                })
+                            }
+                            this.OS = cripting.Encrypting(this.OS);
+                            this.body.alter_date = dateH.getDayAndTime();
+                            this.body = cripting.Encrypting(this.body);
+
+                            let result = (await OSModel.updateOne({'_id': item._id}, {'status': this.OS.status, 'last_changed_by': this.body.last_changed_by, 'alter_date': this.body.alter_date})).modifiedCount
+                            if(result == 1){
+                                resolve({
+                                    httpRes: 200,
+                                    data: 'Alterações realizadas com sucesso!' 
+                                });
+                            }
+                        }
+                    })
+                    setTimeout(() => {
+                        resolve({
+                            httpRes: 401,
+                            data: 'Não foi encontrado nenhuma ordem de serviço com este número de OS' 
+                        })
+                    }, 10000);
+                })
+                
+            }) 
+        } catch (error) {
+            this.error = {
+                error: 'Desconhecido',
+                data: error,
+            }  
+            return this.errors;   
+        }
+    }
 
     async valida() {
         await this.OSNumberCreate().then(res => {
@@ -125,7 +204,7 @@ class OS{
                     res.forEach(async item => {
                         let a = cripting.Decrypting(item.OS);
                         count = count + 1;
-                        if(a.OS == OSNumber){
+                        if(a == OSNumber){
                             find = true;
                         }
                     })
@@ -171,24 +250,6 @@ class OS{
         
     }
 
-    async findAllServiceOrders(){
-            try{
-                return await OSModel.find().then(async res => {
-                    return new Promise((resolve, reject) => {
-                        res.forEach(async item => {
-                            this.data.push((await cripting.Decrypting(item)));
-                        })
-                        resolve({
-                            httpRes: 302,
-                            data: this.data 
-                        });         
-                    })
-                    
-                })
-            }catch(e){
-                console.error(e);
-            }
-        }
 
 
 }
