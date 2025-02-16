@@ -84,6 +84,12 @@ class Customer{
                                 });           
                             }
                         })
+                        setTimeout(() => {
+                            resolve({
+                                httpRes: 401,
+                                data: 'Não foi encontrado nenhum cliente com este E-mail.' 
+                            })
+                        }, 10000);
                     })
                     
                 }) 
@@ -102,6 +108,12 @@ class Customer{
                                     });           
                                 }
                             })
+                            setTimeout(() => {
+                                resolve({
+                                    httpRes: 401,
+                                    data: 'Não foi encontrado nenhum cliente com este CPF.' 
+                                })
+                            }, 10000);
                         })
                         
                     }) 
@@ -126,6 +138,12 @@ class Customer{
                                     });           
                                 }
                             })
+                            setTimeout(() => {
+                                resolve({
+                                    httpRes: 401,
+                                    data: 'Não foi encontrado nenhum cliente com este CNPJ.' 
+                                })
+                            }, 10000);
                         })
                         
                     }) 
