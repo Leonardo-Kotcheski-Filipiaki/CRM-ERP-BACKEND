@@ -16,7 +16,7 @@ router.post('/create', async (req, res) => {
 router.post('/login', async (req, res) => {
     let result = await userController.loginUser(req.body);
     if(result.httpRes == 302){
-        res.status(result.httpRes).json(result.data);
+        res.json(result.data);
     }else if(result.httpRes == 404){
         res.status(result.httpRes).send("User not found");
     }else{

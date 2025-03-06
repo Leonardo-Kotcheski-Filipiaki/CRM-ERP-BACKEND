@@ -44,6 +44,7 @@ class OS{
         await this.valida();
         if((typeof this.errors) == 'object') if(Object.keys(this.errors).length > 0)return this.errors;
         try {
+            this.body.status = "Criada"
             this.body = cripting.Encrypting(this.body);
             return await OSModel.create(this.body).then(res => {
                 if(res.OS){

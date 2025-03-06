@@ -7,7 +7,7 @@ const customerSchema = new mongoose.Schema({
     name: {type: String, required: true},
     surname: {type: String, required: true},
     cpf: {type: String, required: true, unique: true},
-    business_name: {type: String, required: true},
+    business_name: {type: String},
     cnpj: {type: String, unique: true},
     email: {type: String, required: true},
     fullName: {type: String, required: true},

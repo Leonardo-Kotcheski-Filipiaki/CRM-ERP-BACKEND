@@ -6,8 +6,16 @@ const userRoute = require('./routes/userRoute');
 const customerRoute = require('./routes/customerRoute');
 const stockRoute = require('./routes/stockRoute');
 const serviceOrdersRoute = require('./routes/serviceOrdersRoute');
+const cors = require("cors");
 app.use(express.json());
 
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+};
+
+app.use(cors(corsOptions));
 app.use('/user', userRoute);
 app.use('/customer', customerRoute);
 app.use('/stock/item', stockRoute);
@@ -22,7 +30,7 @@ mongoose.connect(process.env.DATABASE_URL)
 })
 
 app.on('ready', () => {
-    app.listen(3000, () => {
+    app.listen(2000, () => {
         console.log('conectado');
     })
 })
