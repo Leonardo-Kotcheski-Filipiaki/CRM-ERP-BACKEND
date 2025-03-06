@@ -30,7 +30,7 @@ router.get('/findAll', async(req, res) => {
     if(!result.data){
         res.status(500).send('System error, try again or contact your supervisor');
     }else{
-        res.status(result.httpRes).send(result.data);
+        res.send(result.data);
     }
 })
 

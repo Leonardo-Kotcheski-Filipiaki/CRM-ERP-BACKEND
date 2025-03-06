@@ -3,6 +3,7 @@ const OSController = require('../controllers/serviceOrdersController');
 
 router.post('/create', async (req, res) => {
     let result = await OSController.createOS(req.body);
+    console.log(result)
     if(Array.isArray(result)){
         res.status(403).send(result);
     }else if(result == 201){
@@ -37,7 +38,7 @@ router.get('/findAll', async(req, res) => {
     if(!result.data){
         res.status(500).send('System error, try again or contact your supervisor');
     }else{
-        res.status(result.httpRes).send(result.data);
+        res.send(result.data);
     }
 })
 
