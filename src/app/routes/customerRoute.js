@@ -14,13 +14,12 @@ router.post('/create', async (req, res) => {
     }
 })
 
-router.get('/find', async(req, res) => {
+router.post('/find', async(req, res) => {
     let result = await customerController.findCustomer(req.body);
-    
-    if(!result.data){
-        res.status(500).send('System error, try again or contact your supervisor');
-    }else{
-        res.status(result.httpRes).send(result.data);
+    if(!result){
+        res.send('500');
+    } else {
+        res.send(result.data)
     }
 })
 
