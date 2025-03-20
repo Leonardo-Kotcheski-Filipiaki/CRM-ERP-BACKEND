@@ -154,6 +154,25 @@ class Customer{
                     }
                 } 
                 
+            } else if(this.body.id){
+                return await CustomerModel.find({_id: this.body.id}).then(async res => {
+                    return new Promise((resolve, reject) => {
+                        res.map(async item => {
+                            this.body = await cripting.Decrypting(item); 
+                            resolve({
+                                data: this.body 
+                            });           
+                            
+                        })
+                        setTimeout(() => {
+                            resolve({
+                                httpRes: 401,
+                                data: 'Não foi encontrado nenhum cliente com este CNPJ.' 
+                            })
+                        }, 10000);
+                    })
+                    
+                })
             }
         } catch (error) {
             console.error(error);

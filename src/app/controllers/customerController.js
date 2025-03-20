@@ -8,7 +8,7 @@ async function createCustomer(body) {
 
 async function findCustomer(body) {
     const customer = new Customer(0, body);
-    let response = await customer.findCustomer();
+    let response = await customer.findCustomer()
     return response;
 }
 
